@@ -59,9 +59,7 @@ def main():
     else:
         out_dir = out_dir / Path("buckeye/")
 
-    # for split in ["train", "test", "val"]:
-    for split in ["val", "test"]:
-    # for split in ["test"]:
+    for split in ["train", "test", "val"]:
         print("Extracting utterances for {} set".format(split))
 
         split_path = out_dir / split
