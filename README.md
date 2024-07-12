@@ -22,7 +22,7 @@ This script extracts individual wav files for the [Buckeye](https://buckeyecorpu
 
 Python script name: preprocess_zrc2017.py
 
-This script extracts individual wav files for the [ZeroSpeech](https://download.zerospeech.com/) 2017 corpus' English train split based on the VAD files found [here](). THe alignment file can be found in the test split's directory on the previously mentioned ZeroSpeech website.
+This script extracts individual wav files for the [ZeroSpeech](https://download.zerospeech.com/) 2017 corpus' English train split based on the VAD files found in the test split's directory (where the alignment files can also be found) on the previously mentioned ZeroSpeech website.
 
 **Example Usage**
 
