@@ -98,6 +98,9 @@ class EncodeAudio:
 
         wav = F.pad(wav, ((400 - 320) // 2, (400 - 320) // 2))
 
+        if wav.shape[-1] < 400: # pad to be at least 400 (otherwise cannot encode)
+            wav = F.pad(wav, (((400 - wav.shape[-1]) // 2)+1, ((400 - wav.shape[-1]) // 2)+1))
+
         # Forward pass through the modified model
         with torch.inference_mode():
             x = self.model.forward(wav, output_hidden_states=True, output_attentions=False)
@@ -141,6 +144,9 @@ class EncodeAudio:
         layer = 12  # Replace this with the desired layer number
         wav = F.pad(wav, ((400 - 320) // 2, (400 - 320) // 2))
 
+        if wav.shape[-1] < 400: # pad to be at least 400 (otherwise cannot encode)
+            wav = F.pad(wav, (((400 - wav.shape[-1]) // 2)+1, ((400 - wav.shape[-1]) // 2)+1))
+
         with torch.inference_mode(): #https://github.com/facebookresearch/fairseq/blob/main/fairseq/models/wav2vec/wav2vec2.py#L795
             x = self.model.extract_features(wav, layer = layer, padding_mask = None)
         
@@ -182,6 +188,9 @@ class EncodeAudio:
         """
 
         wav = F.pad(wav, ((400 - 320) // 2, (400 - 320) // 2))
+
+        if wav.shape[-1] < 400: # pad to be at least 400 (otherwise cannot encode)
+            wav = F.pad(wav, (((400 - wav.shape[-1]) // 2)+1, ((400 - wav.shape[-1]) // 2)+1))
 
         # Forward pass through the model
         with torch.inference_mode():
@@ -226,6 +235,9 @@ class EncodeAudio:
         layer = 12  # Replace this with the desired layer number
         wav = F.pad(wav, ((400 - 320) // 2, (400 - 320) // 2))
 
+        if wav.shape[-1] < 400: # pad to be at least 400 (otherwise cannot encode)
+            wav = F.pad(wav, (((400 - wav.shape[-1]) // 2)+1, ((400 - wav.shape[-1]) // 2)+1))
+
         for i in range(layer):
             with torch.inference_mode(): #https://github.com/facebookresearch/fairseq/blob/main/fairseq/models/hubert/hubert.py
                 x, _ = self.model.extract_features(wav, output_layer = i)
@@ -267,6 +279,8 @@ class EncodeAudio:
         for i in range(layer):
             with torch.inference_mode():
                 wav = F.pad(wav, ((400 - 320) // 2, (400 - 320) // 2))
+                if wav.shape[-1] < 400: # pad to be at least 400 (otherwise cannot encode)
+                    wav = F.pad(wav, (((400 - wav.shape[-1]) // 2)+1, ((400 - wav.shape[-1]) // 2)+1))
                 x, _ = self.model.encode(wav, layer=i)
             
             _, last_dir = os.path.split(self.save_dir)
@@ -300,7 +314,10 @@ class EncodeAudio:
         output : N/A
         """
 
-        wav = F.pad(wav, ((400 - 320) // 2, (400 - 320) // 2))
+        if wav.shape[-1] < 200:
+            wav = F.pad(wav, (200 - wav.shape[-1], 200 - wav.shape[-1]))
+        else:
+            wav = F.pad(wav, ((400 - 320) // 2, (400 - 320) // 2))
 
         f_s = 16000
         n_fft = int(0.02*f_s) #20ms window length
@@ -363,12 +380,16 @@ class EncodeAudio:
         output : N/A
         """
 
-        wav = F.pad(wav, ((400 - 320) // 2, (400 - 320) // 2))
+        if wav.shape[-1] < 200:
+            wav = F.pad(wav, (200 - wav.shape[-1], 200 - wav.shape[-1]))
+        else:
+            wav = F.pad(wav, ((400 - 320) // 2, (400 - 320) // 2))
+
         wav = self.preemphasis(wav, coeff=0.97)
 
         f_s = 16000
-        n_fft = int(np.floor(0.025*f_s)) #25ms window length TODO make 20ms for speech models
-        stride = int(np.floor(0.01*f_s)) #10ms TODO make 20.1ms for same number of frames as the speech models
+        n_fft = int(np.floor(0.025*f_s)) #25ms window length
+        stride = int(np.floor(0.01*f_s)) #10ms
         transform = T.MFCC(sample_rate=f_s, n_mfcc=13, melkwargs={
         "n_fft": n_fft,
         "n_mels": 24,
