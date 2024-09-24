@@ -60,17 +60,17 @@ def main():
                     wav_path.with_suffix(".wav"))
                     )
                 
-                # re-save alignment files
-                # align = Path(os.path.split(in_dir)[0] / Path("buckeye_alignments/")/split/Path(out_path).stem)
-                # align_new = Path(os.path.split(in_dir)[0] / Path("buckeye_alignments_sec/")/split/speaker_info)
-                # align_new.parent.mkdir(parents=True, exist_ok=True)
-                # with open(align.with_suffix(".txt")) as f:
-                #     with open(align_new.with_suffix(".txt"), "w") as f_new:
-                #         for line in f:
-                #             start_time, end_time, word = line.strip().split(" ")
-                #             start_time = round(float(start_time)*0.01, 6) # take to seconds
-                #             end_time = round(float(end_time)*0.01, 6)
-                #             f_new.write(f"{start_time} {end_time} {word}\n")
+                # save alignment files IN SECONDS
+                align = Path(os.path.split(in_dir)[0] / Path("buckeye_alignments/")/split/Path(out_path).stem)
+                align_new = Path(os.path.split(in_dir)[0] / Path("buckeye_alignments_sec/")/split/speaker_info)
+                align_new.parent.mkdir(parents=True, exist_ok=True)
+                with open(align.with_suffix(".txt")) as f:
+                    with open(align_new.with_suffix(".txt"), "w") as f_new:
+                        for line in f:
+                            start_time, end_time, word = line.strip().split(" ")
+                            start_time = round(float(start_time)*0.01, 6) # take to seconds
+                            end_time = round(float(end_time)*0.01, 6)
+                            f_new.write(f"{start_time} {end_time} {word}\n")
                 
                 out_path = os.path.split(in_dir)[0] / Path("buckeye_segments/")/split/speaker_info
                 out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -81,5 +81,5 @@ def main():
                 sf.write(
                     out_path.with_suffix(".wav"), wav, samplerate=16000)
 
-if __name__ == "__main__": # python3 preprocess_buckeye.py /media/hdd/data/buckeye/ --segments 
+if __name__ == "__main__":
     main()

@@ -65,7 +65,7 @@ def segment_data(args):
                             break
 
 
-if __name__ == "__main__": # python3 preprocess_zrc2017.py /media/hdd/data/zrc/zrc2017-train-dataset /media/hdd/data/zrc/zrc2017-test-dataset/english/english.vad.csv /media/hdd/data/zrc/zrc2017-test-dataset/english/english.wrd
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description=__doc__.strip().split("\n")[0], add_help=False
         )

@@ -2,7 +2,8 @@
 
 ## Overview
 
-This repository deals with all things data related. Speech corpus data is preprocessed, feature encodings are extracted and saved, and data sampling and transforming is enabled.
+<!-- This repository deals with all things data related. Speech corpus data is preprocessed, feature encodings are extracted and saved, and data sampling and transforming is enabled. -->
+This repository is responsible for the preprocessing of speech data. This enables lightweight audio encodings involved in downstream tasks.
 
 ## Scripts
 
@@ -28,7 +29,7 @@ This script extracts individual wav files for the [ZeroSpeech](https://download.
 
     python3 preprocess_zrc2017.py path/to/zrc2017/train/data path/to/zrc2017/train/english/vad path/to/zrc2017/train/english/alignments
 
-### Extract Feature Encodings
+<!-- ### Extract Feature Encodings
 
 Python script name: encode.py
 
@@ -48,10 +49,10 @@ The pre-trained models used are:
   - [HuggingFace](https://huggingface.co/docs/transformers/en/model_doc/hubert)
   - [bshall](https://github.com/bshall/hubert/tree/main)
 
-The model_name can be one of: w2v2_fs, w2v2_hf, hubert_fs, hubert_hf, hubert_shall, melspec, mfcc. The optional extension argument is the extension of the audio files to be processed.
+The model_name can be one of: w2v2_fs, w2v2_hf, hubert_fs, hubert_hf, hubert_shall, melspec, mfcc. The optional extension argument is the extension of the audio files to be processed. -->
 
-### Sample and Transform Data
+<!-- ### Sample and Transform Data
 
 Python script name: audio_process.py
 
-This script contains utility functions to sample audio (and its features), to normalize sampled features, to find corresponding alignment files, and to load the alignment file attributes.
+This script contains utility functions to sample audio (and its features), to normalize sampled features, to find corresponding alignment files, and to load the alignment file attributes. -->
