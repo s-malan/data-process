@@ -24,6 +24,7 @@ Python script name: preprocess_zrc2017.py
 This script extracts individual wav files for the ZeroSpeech [https://download.zerospeech.com/](https://download.zerospeech.com/) 2017 corpus' train split based on the VAD files found in the test split's directory (where the alignment files can also be found) on the previously mentioned ZeroSpeech website. The language argument specifies the ZeroSpeech language to process, options are: english, french, mandarin, german, and wolof.
 
 **ZeroSpeech Repository**
+
 Clone the ZeroSpeech repository at [https://github.com/zerospeech/benchmarks](https://github.com/zerospeech/benchmarks) to use the ZeroSpeech toolkit used for benchmark resources and evaluation scripts.
 
 **Example Usage**
