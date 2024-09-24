@@ -25,11 +25,6 @@ def check_argv():
         type=Path, 
         help="local copy of the official Buckeye data",
         )
-    parser.add_argument( # to have shorter segments for the model
-        "--segments", 
-        action="store_true",
-        help="read Buckeye segments instead of the full utterances"
-        )
     return parser.parse_args()
 
 def main():

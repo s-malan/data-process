@@ -85,7 +85,8 @@ if __name__ == "__main__":
         help="alignment file for ZRC2017 data"
         )
     parser.add_argument(
-        "--language",
+        "language",
+        options=["english", "french", "mandarin", "german", "wolof"],
         type=str,
         help="ZRC2017 language",
         default="english"
