@@ -39,7 +39,7 @@ def load_features(file):
         feature = feature.unsqueeze(0)
     return feature
 
-def output_segment(extact_feat, extact_grid, features_dir, align_file, align_out_path, words, current_grid, num_sub_utterances):
+def output_segment(extact_feat, extact_grid, features_dir, align_dir, align_file, words, current_grid, num_sub_utterances):
     """
     Extract and save the current sub-utterance's features and TextGrid.
 
@@ -51,10 +51,10 @@ def output_segment(extact_feat, extact_grid, features_dir, align_file, align_out
         Whether to extract TextGrids for each sub-utterance
     features_dir : Path
         Directory containing speech features
+    align_dir : Path
+        Directory containing alignment TextGrids
     align_file : String
         File path to the alignment TextGrid
-    align_out_path : Path
-        Output path for the sub-utterance TextGrid
     words : List (Interval)
         List of word intervals in the current sub-utterance
     current_grid : TextGrid
@@ -74,11 +74,10 @@ def output_segment(extact_feat, extact_grid, features_dir, align_file, align_out
         feature_xmax = int(np.round(current_grid.xmax / 20 * 1000))
         feature = feature[feature_xmin:feature_xmax, :]
         feature_file = os.path.relpath(feature_file, features_dir)
-        features_dir_out = "/".join(str(features_dir).split('/')[:-2]) + "_feature_sliced/" + "/".join(str(features_dir).split('/')[-2:])
-        features_dir_out = Path(features_dir_out) / Path(feature_file.split('.')[0] + f'-{num_sub_utterances:04d}.npy')
-        feature_file = Path(str(features_dir_out / Path(align_file).stem) + f'-{num_sub_utterances:04d}.npy')
-        feature_file.parent.mkdir(parents=True, exist_ok=True)
-        np.save(feature_file, feature.cpu().numpy())
+        features_dir_out = Path(*features_dir.parts[:-3], features_dir.parts[-3] + "_feature_sliced", *features_dir.parts[-2:])
+        features_dir_out = features_dir_out / Path(feature_file.split('.')[0] + f'-{num_sub_utterances:04d}.npy')
+        features_dir_out.parent.mkdir(parents=True, exist_ok=True)
+        np.save(features_dir_out, feature.cpu().numpy())
 
     if extact_grid:
         # New TextGrid
@@ -102,9 +101,11 @@ def output_segment(extact_feat, extact_grid, features_dir, align_file, align_out
         current_grid["syllables"] = syl_intervals
 
         # Save sub-utterance TextGrid
-        align_out_path_new = Path(str(align_out_path) + f'-{num_sub_utterances:04d}.TextGrid')
-        align_out_path_new.parent.mkdir(parents=True, exist_ok=True)
-        current_grid.write(align_out_path_new)
+        align_file = os.path.relpath(align_file, align_dir)
+        align_out_path = Path(*align_dir.parts[:-1], align_dir.parts[-1] + "_feature_sliced")
+        align_out_path = align_out_path / Path(align_file.split('.')[0] + f'-{num_sub_utterances:04d}.TextGrid')
+        align_out_path.parent.mkdir(parents=True, exist_ok=True)
+        current_grid.write(align_out_path)
 
 def segment_data(args):
     """
@@ -115,22 +116,21 @@ def segment_data(args):
     args : argparse.Namespace
         Command line arguments
     """
+    
     extact_feat = args.extact_feat
     extact_grid = args.extact_grid
     features_dir = args.feature_dir
     align_dir = args.alignments_dir
-    align_out_dir = align_dir.parent / Path(str(align_dir).split('/')[-1] + "_feature_sliced")
 
     # Split each utterance into sub-utterances based on silences in the alignments
     for align_file in tqdm(sorted(glob(os.path.join(align_dir, f'**/*.TextGrid'), recursive=True))):
         current_grid = textgrids.TextGrid(align_file)
-        align_out_path = align_out_dir / Path(align_file).stem
         words = []
         num_sub_utterances = 0
         for word in textgrids.TextGrid(align_file)["words"]:
             if word.text in ["<unk>", ""]: # Save previous sub-utterance and start new one
                 if len(words) == 0: continue
-                output_segment(extact_feat, extact_grid, features_dir, align_file, align_out_path, words, current_grid, num_sub_utterances)
+                output_segment(extact_feat, extact_grid, features_dir, align_dir, align_file, words, current_grid, num_sub_utterances)
 
                 words = []
                 current_grid = textgrids.TextGrid(align_file)
@@ -141,7 +141,7 @@ def segment_data(args):
                 
         # Save last sub-utterance (if present)
         if len(words) > 0:
-            output_segment(extact_feat, extact_grid, features_dir, align_file, align_out_path, words, current_grid, num_sub_utterances)
+            output_segment(extact_feat, extact_grid, features_dir, align_dir, align_file, words, current_grid, num_sub_utterances)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
