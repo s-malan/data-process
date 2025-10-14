@@ -117,10 +117,10 @@ def segment_data(args):
         Command line arguments
     """
     
-    extact_feat = args.extact_feat
-    extact_grid = args.extact_grid
-    features_dir = args.feature_dir
+    features_dir = args.features_dir
     align_dir = args.alignments_dir
+    extact_feat = True if args.features_dir is not None else False
+    extact_grid = True if args.alignments_dir is not None else False
 
     # Split each utterance into sub-utterances based on silences in the alignments
     for align_file in tqdm(sorted(glob(os.path.join(align_dir, f'**/*.TextGrid'), recursive=True))):
@@ -148,24 +148,14 @@ if __name__ == "__main__":
         description=__doc__.strip().split("\n")[0], add_help=False
         )
     parser.add_argument(
-        "feature_dir",
+        "--features_dir",
         type=Path,
         help="speech features directory"
         )
     parser.add_argument(
-        "alignments_dir",
+        "--alignments_dir",
         type=Path,
         help="alignment files corresponding to features"
-        )
-    parser.add_argument(
-        "extact_feat",
-        type=bool,
-        help="whether to extract TextGrids for each sub-utterance"
-        )
-    parser.add_argument(
-        "extact_grid",
-        type=bool,
-        help="whether to extract TextGrids for each sub-utterance"
         )
     if len(sys.argv) == 1:
         parser.print_help()
