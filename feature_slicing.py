@@ -15,7 +15,6 @@ from glob import glob
 from tqdm import tqdm
 
 import numpy as np
-import torch
 import textgrids
 from syllabify import syllabify
 
@@ -34,7 +33,7 @@ def load_features(file):
         Speech features in a tensor (num_frames, num_features)
     """
 
-    feature = torch.from_numpy(np.load(file))
+    feature = np.load(file)
     if len(feature.shape) == 1: # if only one dimension, add a dimension
         feature = feature.unsqueeze(0)
     return feature
@@ -77,7 +76,7 @@ def output_segment(extact_feat, extact_grid, features_dir, align_dir, align_file
         features_dir_out = Path(*features_dir.parts[:-3], features_dir.parts[-3] + "_feature_sliced", *features_dir.parts[-2:])
         features_dir_out = features_dir_out / Path(feature_file.split('.')[0] + f'-{num_sub_utterances:04d}.npy')
         features_dir_out.parent.mkdir(parents=True, exist_ok=True)
-        np.save(features_dir_out, feature.cpu().numpy())
+        np.save(features_dir_out, feature)
 
     if extact_grid:
         # New TextGrid
@@ -100,6 +99,18 @@ def output_segment(extact_feat, extact_grid, features_dir, align_dir, align_file
             del phone_xmaxs[:syl_len]
         current_grid["syllables"] = syl_intervals
 
+        # Offset the start and end times to be relative to the sub-utterance
+        if current_grid.xmin > 0.0:
+            time_offset = current_grid.xmin
+            for tier in current_grid.values():
+                tier.xmin -= time_offset
+                tier.xmax -= time_offset
+                for interval in tier:
+                    interval.xmin -= time_offset
+                    interval.xmax -= time_offset
+            current_grid.xmin = 0.0
+            current_grid.xmax -= time_offset
+
         # Save sub-utterance TextGrid
         align_file = os.path.relpath(align_file, align_dir)
         align_out_path = Path(*align_dir.parts[:-1], align_dir.parts[-1] + "_feature_sliced")
@@ -120,7 +131,7 @@ def segment_data(args):
     features_dir = args.features_dir
     align_dir = args.alignments_dir
     extact_feat = True if args.features_dir is not None else False
-    extact_grid = True if args.alignments_dir is not None else False
+    extact_grid = args.extract_grid
 
     # Split each utterance into sub-utterances based on silences in the alignments
     for align_file in tqdm(sorted(glob(os.path.join(align_dir, f'**/*.TextGrid'), recursive=True))):
@@ -148,14 +159,20 @@ if __name__ == "__main__":
         description=__doc__.strip().split("\n")[0], add_help=False
         )
     parser.add_argument(
+        "alignments_dir",
+        type=Path,
+        help="alignment files directory"
+        )
+    parser.add_argument(
         "--features_dir",
         type=Path,
         help="speech features directory"
         )
     parser.add_argument(
-        "--alignments_dir",
-        type=Path,
-        help="alignment files corresponding to features"
+        "--extract_grid",
+        type=bool,
+        help="if alignments should be extracted for each sub-utterance",
+        default=True
         )
     if len(sys.argv) == 1:
         parser.print_help()

@@ -14,9 +14,9 @@ This script slices speech features and alignment files (mainly used for the Libr
 
 **Example Usage**
 
-    python3 feature_slicing.py --features_dir=path/to/speech/features --alignments_dir=path/to/alignment/data slice_features
+    python3 feature_slicing.py path/to/alignment/data slice_features --features_dir=path/to/speech/features --extract_grid
   
-This script assumes a similar path structure for features `/.../.../librispeech/dev_clean/model/layer`, and for alignments `/.../.../librispeech_alignments/dev_clean`. The omission of either argument is allowed.
+This script assumes a similar path structure for features `/.../.../librispeech/dev_clean/model/layer`, and for alignments `/.../.../librispeech_alignments/dev_clean`. `extract_grid` (default: `True`) chooses if alignments should be split, the presence of `features_dir` decides if features are split or not.
 
 ### Preprocess BuckEye
 
