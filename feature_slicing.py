@@ -29,14 +29,33 @@ def load_features(file):
 
     Return
     ------
-    feature : Tensor
-        Speech features in a tensor (num_frames, num_features)
+    feature : np.ndarray
+        Speech features (num_frames, num_features)
     """
 
     feature = np.load(file)
     if len(feature.shape) == 1: # if only one dimension, add a dimension
         feature = feature.unsqueeze(0)
     return feature
+
+def get_frame_num(seconds, ms_per_frame=20):
+    """
+    Convert seconds to feature frame number
+
+    Parameters
+    ----------
+    seconds : float or ndarray (float)
+        The number of seconds (of audio) to convert to frames
+    ms_per_frame : int
+        The number of milliseconds per feature frame
+
+    Return
+    ------
+    output : int
+        The feature frame number corresponding to the given number of seconds 
+    """
+
+    return np.floor(np.round((seconds / ms_per_frame * 1000), 1) + 0.5)
 
 def output_segment(extact_feat, extact_grid, features_dir, align_dir, align_file, words, current_grid, num_sub_utterances):
     """
@@ -69,8 +88,8 @@ def output_segment(extact_feat, extact_grid, features_dir, align_dir, align_file
         # Slice features and save
         feature_file = glob(os.path.join(features_dir, f'**/{Path(align_file).stem}.npy'), recursive=True)[0]
         feature = load_features(feature_file)
-        feature_xmin = int(np.round(current_grid.xmin / 20 * 1000))
-        feature_xmax = int(np.round(current_grid.xmax / 20 * 1000))
+        feature_xmin = int(get_frame_num(current_grid.xmin))
+        feature_xmax = int(get_frame_num(current_grid.xmax))
         feature = feature[feature_xmin:feature_xmax, :]
         feature_file = os.path.relpath(feature_file, features_dir)
         features_dir_out = Path(*features_dir.parts[:-3], features_dir.parts[-3] + "_feature_sliced", *features_dir.parts[-2:])
