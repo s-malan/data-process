@@ -6,6 +6,24 @@ This repository is responsible for the preprocessing of speech data. This enable
 
 Note: all alignment and VAD files are saved in seconds and all file names containing time stamps are denoted in milliseconds.
 
+### Feature Extraction
+
+Python script name: `extract_features.py`
+
+This script extracts and saves self-supervised speech features for an input dataset. Frame centering padding is always applied to the input waveforms: `wav = F.pad(wav, ((400 - 320) // 2, (400 - 320) // 2))`.
+
+**Example Usage**
+
+    python3 extract_features.py model_name model_layer path/to/input/data path/to/output/directory --extension=.flac --layer_norm=False
+
+The `model_name` argument specifies the SSL model used (as shown below).
+The `model_layer` argument specifies the encoder layer to extract from: `1-12/24` or `0` for CNN output, `None` for normalized final layer output, or `-1` for all layer outputs (`0-12/24`).
+The path to the input data and the output directory is provided.
+The optional `extension` argument specifies the waveform format.
+The `layer_norm` argument performs waveform normalization.
+
+The models currently included are: [wav2vec2](https://github.com/facebookresearch/fairseq/tree/main/examples/wav2vec) (base: `w2v2` and large: `w2v2_large`), [HuBERT](https://github.com/facebookresearch/fairseq/tree/main/examples/hubert) (base: `hubert` and large: `hubert_large`), [HuBERT-Soft](https://github.com/bshall/hubert) (encoder: `hubert_soft_enc` and post-projection features: `hubert_soft`), and [WavLM](https://github.com/microsoft/unilm/tree/master/wavlm) (base: `wavlm` and large `wavlm_large`).
+
 ### Feature Slicing
 
 Python script name: `feature_slicing.py`
@@ -41,40 +59,3 @@ Clone the ZeroSpeech repository at [https://github.com/zerospeech/benchmarks](ht
 **Example Usage**
 
     python3 preprocess_zrc2017.py path/to/zrc2017/data path/to/zrc2017/data/vad.vad.csv path/to/zrc2017/data/alignments.wrd --language=english
-
-### Feature Extraction
-
-To extract features, use a similar method as in [this](https://github.com/bshall/hubert/tree/main) repo:
-1. Pad the waveform (frame center padding):
-    `wav = F.pad(wav, ((400 - 320) // 2, (400 - 320) // 2))`
-2. Extract features, use:
-  [this](https://github.com/bshall/hubert/blob/main/hubert/model.py#L39) `x, _ = model.encode(wav, layer=layer)`
-  or, [this](https://github.com/facebookresearch/fairseq/blob/main/fairseq/models/hubert/hubert.py#L533)/[this](https://github.com/bshall/knn-vc/blob/848302a262f7299c738af49d74209790ed442a9f/wavlm/WavLM.py#L323) `x, _ = model.extract_features(wav, output_layer=layer)`
-
-<!-- ### Extract Feature Encodings
-
-Python script name: encode.py
-
-This script encodes audio by extracting its features from models (and their layers, where applicable).
-
-**Example Usage**
-
-    python3 wordseg/encode.py model_name path/to/audio path/to/embeddings/save --extension=.flac
-
-The pre-trained models used are:
-
-- wav2vec 2.0
-  - [fairseq](https://github.com/facebookresearch/fairseq/tree/main/examples/wav2vec)
-  - [HuggingFace](https://huggingface.co/docs/transformers/en/model_doc/wav2vec2)
-- Hubert
-  - [fairseq](https://github.com/facebookresearch/fairseq/tree/main/examples/hubert)
-  - [HuggingFace](https://huggingface.co/docs/transformers/en/model_doc/hubert)
-  - [bshall](https://github.com/bshall/hubert/tree/main)
-
-The model_name can be one of: w2v2_fs, w2v2_hf, hubert_fs, hubert_hf, hubert_shall, melspec, mfcc. The optional extension argument is the extension of the audio files to be processed. -->
-
-<!-- ### Sample and Transform Data
-
-Python script name: audio_process.py
-
-This script contains utility functions to sample audio (and its features), to normalize sampled features, to find corresponding alignment files, and to load the alignment file attributes. -->

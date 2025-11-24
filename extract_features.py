@@ -87,7 +87,7 @@ class EncodeAudio:
         else:
             raise ValueError(f"Model {self.model_name} not recognized.")
     
-    def save_encoding(self, x: torch.Tensor, file_path: str, i: int):
+    def save_encoding(self, x: torch.Tensor, file_path: Path, i: int):
         """
         Save the extracted features to disk.
 
@@ -112,7 +112,7 @@ class EncodeAudio:
         np.save(out_path.with_suffix(".npy"), x.squeeze().cpu().numpy())
     
     @torch.inference_mode()
-    def encode_w2v2(self, wav: torch.Tensor, file_path: str):
+    def encode_w2v2(self, wav: torch.Tensor, file_path: Path):
         """
         Extracts and saves wav2vec2 (Base or Large) features for a given audio file.
 
@@ -134,7 +134,7 @@ class EncodeAudio:
             self.save_encoding(x, file_path, i)
 
     @torch.inference_mode()
-    def encode_hubert(self, wav: torch.Tensor, file_path: str):
+    def encode_hubert(self, wav: torch.Tensor, file_path: Path):
         """
         Extracts and saves HuBERT (Base or Large) features for a given audio file.
 
@@ -156,7 +156,7 @@ class EncodeAudio:
             self.save_encoding(x, file_path, i)
     
     @torch.inference_mode()
-    def encode_hubert_shall(self, wav: torch.Tensor, file_path: str):
+    def encode_hubert_shall(self, wav: torch.Tensor, file_path: Path):
         """
         Extracts and saves HuBERT-Soft (encoder or post-projection) features for a given audio file.
 
@@ -181,7 +181,7 @@ class EncodeAudio:
             self.save_encoding(x, file_path, i)
 
     @torch.inference_mode()
-    def encode_wavlm(self, wav: torch.Tensor, file_path: str):
+    def encode_wavlm(self, wav: torch.Tensor, file_path: Path):
         """
         Extracts and saves WavLM (Base or Large) features for a given audio file.
 
@@ -285,8 +285,17 @@ if __name__ == "__main__":
         default=False,
         type=bool,
     )
-    args = parser.parse_args() 
+    args = parser.parse_args()
 
     args.layer = int(args.layer) if args.layer != "None" else None
+    if "large" in args.model and args.layer is not None:
+        assert (
+            args.layer <= 24 and args.layer >= -1
+        ), "Layer must be between -1 and 24 (inclusive)."
+    elif "large" not in args.model and args.layer is not None:
+        assert (
+            args.layer <= 12 and args.layer >= -1
+        ), "Layer must be between -1 and 12 (inclusive)."
+
     encoder = EncodeAudio(args.model, args.layer, args.in_dir, args.out_dir, args.extension, args.layer_norm)
     encoder.get_encodings()
