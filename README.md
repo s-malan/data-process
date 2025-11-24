@@ -24,6 +24,8 @@ The `layer_norm` argument performs waveform normalization.
 
 The models currently included are: [wav2vec2](https://github.com/facebookresearch/fairseq/tree/main/examples/wav2vec) (base: `w2v2` and large: `w2v2_large`), [HuBERT](https://github.com/facebookresearch/fairseq/tree/main/examples/hubert) (base: `hubert` and large: `hubert_large`), [HuBERT-Soft](https://github.com/bshall/hubert) (encoder: `hubert_soft_enc` and post-projection features: `hubert_soft`), and [WavLM](https://github.com/microsoft/unilm/tree/master/wavlm) (base: `wavlm` and large `wavlm_large`).
 
+Note: Requires the model checkpoints to be in `checkpoints/` and for [fairseq](https://github.com/facebookresearch/fairseq/tree/main) to be installed.
+
 ### Feature Slicing
 
 Python script name: `feature_slicing.py`
